@@ -3,7 +3,7 @@
 
 Git Repo
 
-
+https://github.com/fubzee/W13HW-ORM-Product-db
 
 W13HW - Part 1 
 https://drive.google.com/file/d/1l5GEweBUoqbXHY6iDXGCw42g2ViTD3bI/view
@@ -86,7 +86,7 @@ CRUD functions were tested using Insomnia to make calls to the application - the
 
 ## Git Profile  :link:
 
-https://github.com/fubzee/W12HW-EMPLOYEES-DBMS
+https://github.com/fubzee/W13HW-ORM-Product-db
 
 
 ### Questions :question:
