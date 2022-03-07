@@ -86,7 +86,7 @@ CRUD functions were tested using Insomnia to make calls to the application - the
 
 ## Git Profile  :link:
 
-https://github.com/fubzee/W13HW-ORM-Product-db
+https://github.com/fubzee
 
 
 ### Questions :question:
