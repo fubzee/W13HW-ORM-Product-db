@@ -39,7 +39,20 @@ router.get('/:id',  async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+
     try {
+      const categoryData = await Category.findByPk(req.body.category_id);
+      if (!categoryData) {
+        res.status(404).json({ message: 'Invalid Category ID!' });
+        return;
+      }
+      
+      for (i=0; i < req.body.tagIds.length; i++) {
+        const tagData = await Tag.findByPk(req.body.tagIds[i]);
+        if (!tagData) {
+          return res.status(404).json({ message: 'Invalid Tag in list!' })
+         }
+      }
       await Product.create({
         product_name: req.body.product_name,
         price: req.body.price,
@@ -77,22 +90,38 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   // update product data
   try {
-      const productData = await Product.update({
-        product_name: req.body.product_name,
-        price: req.body.price,
-        stock: req.body.stock,
-        category_id: req.body.category_id,
-        tag_id: req.body.tagIds
-        },{
-        where: {
-          id: req.params.id,
-        }
-      })
-      .then ((product) =>  {
+    const categoryData = await Category.findByPk(req.body.category_id);
+    if (!categoryData) {
+      res.status(404).json({ message: 'Invalid Category ID!' });
+      return;
+    }
+    const productData = await Product.findByPk(req.params.id);
+    if (!productData) {
+      res.status(404).json({ message: 'Invalid Product ID!' });
+      return;
+    }
+    for (i=0; i < req.body.tagIds.length; i++) {
+      const tagData = await Tag.findByPk(req.body.tagIds[i]);
+      if (!tagData) {
+        return res.status(404).json({ message: 'Invalid Tag in list!' })
+       }
+    }
+    return Product.update({
+      product_name: req.body.product_name,
+      price: req.body.price,
+      stock: req.body.stock,
+      category_id: req.body.category_id,
+      tag_id: req.body.tagIds
+      },{
+      where: {
+        id: req.params.id,
+      }
+    })
+    .then ((product) =>  {
         // find all associated tags from ProductTag
         return ProductTag.findAll({ where: { product_id: req.params.id } });
       })
-      .then((productTags) => {
+    .then((productTags) => {
         // get list of current tag_ids
         const productTagIds = productTags.map(({ tag_id }) => tag_id)
         // create filtered list of new tag_ids
@@ -115,12 +144,13 @@ router.put('/:id', async (req, res) => {
           ProductTag.bulkCreate(newProductTags),
         ])
       })
-      .then((updatedProductTags) => res.json(updatedProductTags))
+    .then((updatedProductTags) => res.json(updatedProductTags))
     }
-    catch (err) {
-      // console.log(err);
-      res.status(400).json(err);
-    };
+  
+  catch (err) {
+    console.log(err.message);
+    res.status(400).json(err.message);
+  };
 });
 
 router.delete('/:id', async (req, res) => {
@@ -142,38 +172,5 @@ try {
     res.status(500).json(err);
   }
 });
-    // .then((product) => {
-    //   // find all associated tags from ProductTag
-    //   return ProductTag.findAll({ where: { product_id: req.params.id } });
-    // })
-    // .then((productTags) => {
-    //   // get list of current tag_ids
-    //   const productTagIds = productTags.map(({ tag_id }) => tag_id);
-    //   // create filtered list of new tag_ids
-    //   const newProductTags = req.body.tagIds
-    //     .filter((tag_id) => !productTagIds.includes(tag_id))
-    //     .map((tag_id) => {
-    //       return {
-    //         product_id: req.params.id,
-    //         tag_id,
-    //       };
-    //     });
-    //   // figure out which ones to remove
-    //   const productTagsToRemove = productTags
-    //     .filter(({ tag_id }) => !req.body.tagIds.includes(tag_id))
-    //     .map(({ id }) => id);
-
-    //   // run both actions
-    //   return Promise.all([
-    //     ProductTag.destroy({ where: { id: productTagsToRemove } }),
-    //     ProductTag.bulkCreate(newProductTags),
-    //   ]);
-    // })
-    // .then((updatedProductTags) => res.json(updatedProductTags))
-    // .catch((err) => {
-    //   console.log(err.message);
-    //   res.status(400).json(err);
-    // })
-
 
 module.exports = router;
